@@ -13,16 +13,16 @@ const {configure, getLogger} = require('log4js');
  */
 
 configure({
-    // 输出源设置
+    // 具体的日志记录类型,通过type 指定输出日志格式 。名称只是配合 categories 方便指示具体使用哪些日志记录类型
     appenders: {
-        // 同时输出到控制台方便开发阶段使用。or 不会输出控制台信息
         console: {
+            // 同时输出到控制台方便开发阶段使用。or 不会输出控制台信息
             type: "console"
         },
-        // 记录所有日志
         app: {
             // 按日分文件保存 （也可以定义 type:file 。then 设置文件大小控制分文件保存）
             type: "dateFile",
+            // 可以只全路径 或者相对路径
             filename: "logs/app",
             pattern: "yyyy-MM-dd.log",
             daysToKeep: 30,//最多保存天数
@@ -35,9 +35,10 @@ configure({
             pattern: "yyyy-MM-dd.log",
             alwaysIncludePattern: true
         },
-        // type: "logLevelFilter", 将错误信息单独输出到一个问题。更方便定位错误日志
         error_filter: {
+            // 按照 level 过滤日志
             type: "logLevelFilter",
+            // 具体应用的 日志输出类型
             appender: "errs",
             level: "error"
         },
@@ -49,17 +50,22 @@ configure({
             alwaysIncludePattern: true
         }
     },
-    // 通过 getLogger 控制日志记录的保存目录
+    // 默认会有 { categories: { default: { appenders: ['out'], level: 'OFF' } } }
     categories: {
-        // 没有匹配到日志目录（must has default）
+        // 如果自己设置了categories，则必须要有default配置。默认没有匹配到分类的日志都走default
         default: {
+            // 应用哪些 具体的日志记录类型输出日志格式
             appenders: ["console", "app", "error_filter"],
+            // 最低级别：所有高于的日志记录都被记录
+            level: "trace"
+        },
+        //
+        yourCateLog: {
+            appenders: ["console", "app"],
             // 最低级别：所有高于的日志记录都被记录
             level: "trace"
         }
     },
-    // pm2: true,
-    // @ts-ignore console.log(msg) 无法被记录
     replaceConsole: true
 });
 
